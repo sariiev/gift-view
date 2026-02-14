@@ -13,6 +13,11 @@ dependencies = [
     "psycopg[binary]"
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest"
+]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
