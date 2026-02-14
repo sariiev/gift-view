@@ -1,0 +1,13 @@
+services:
+  local-postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: gift_view
+      POSTGRES_USER: gifts
+      POSTGRES_PASSWORD: gifts
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
