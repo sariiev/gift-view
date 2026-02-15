@@ -8,11 +8,11 @@ class RarityTierResolver:
         self.cache = {}
 
 
-    def resolve(self, name: str) -> RarityTier:
+    async def resolve(self, name: str) -> RarityTier:
         if name in self.cache:
             return self.cache[name]
 
-        rarity_tier = self.repository.get_by_name(name=name)
+        rarity_tier = await self.repository.get_by_name(name=name)
         if rarity_tier:
             self.cache[name] = rarity_tier
             return rarity_tier
@@ -20,7 +20,7 @@ class RarityTierResolver:
         rarity_tier = RarityTier(name=name)
         self.repository.add(rarity_tier=rarity_tier)
 
-        self.repository.session.flush()
+        await self.repository.session.flush()
 
         self.cache[name] = rarity_tier
         return rarity_tier

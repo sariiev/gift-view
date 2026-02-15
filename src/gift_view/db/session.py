@@ -1,19 +1,17 @@
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from gift_view.db.engine import engine
 
-Session = sessionmaker(bind=engine)
+Session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
-@contextmanager
-def get_session():
-    session = Session()
-    try:
-        yield session
-        session.commit()
-    except:
-        session.rollback()
-        raise
-    finally:
-        session.close()
+@asynccontextmanager
+async def get_session():
+    async with Session() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise

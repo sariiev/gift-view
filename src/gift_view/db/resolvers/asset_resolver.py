@@ -8,11 +8,11 @@ class AssetResolver:
         self.cache = {}
 
 
-    def resolve(self, symbol: str) -> Asset:
+    async def resolve(self, symbol: str) -> Asset:
         if symbol in self.cache:
             return self.cache[symbol]
 
-        asset = self.repository.get_by_symbol(symbol=symbol)
+        asset = await self.repository.get_by_symbol(symbol=symbol)
         if asset:
             self.cache[symbol] = asset
             return asset
@@ -20,7 +20,7 @@ class AssetResolver:
         asset = Asset(symbol=symbol)
         self.repository.add(asset=asset)
 
-        self.repository.session.flush()
+        await self.repository.session.flush()
 
         self.cache[symbol] = asset
         return asset

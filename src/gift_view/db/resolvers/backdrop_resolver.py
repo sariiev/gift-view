@@ -8,12 +8,12 @@ class BackdropResolver:
         self.cache = {}
 
 
-    def resolve(self, name: str, rarity_percent: float) -> Backdrop:
+    async def resolve(self, name: str, rarity_percent: float) -> Backdrop:
         key = (name, rarity_percent)
         if key in self.cache:
             return self.cache[key]
 
-        backdrop = self.repository.get_by_name_and_rarity_percent(name=name, rarity_percent=rarity_percent)
+        backdrop = await self.repository.get_by_name_and_rarity_percent(name=name, rarity_percent=rarity_percent)
         if backdrop:
             self.cache[key] = backdrop
             return backdrop
@@ -21,7 +21,7 @@ class BackdropResolver:
         backdrop = Backdrop(name=name, rarity_percent=rarity_percent)
         self.repository.add(backdrop=backdrop)
 
-        self.repository.session.flush()
+        await self.repository.session.flush()
 
         self.cache[key] = backdrop
         return backdrop

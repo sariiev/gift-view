@@ -1,89 +1,20 @@
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 import gift_view.db.models
 
 from gift_view.db.base import Base
-from gift_view.db.models import Marketplace, Asset, Gift, Backdrop, Symbol, Sale
 
 
-@pytest.fixture
-def session():
-    engine = create_engine("sqlite+pysqlite:///:memory:")
-    Base.metadata.create_all(bind=engine)
+@pytest_asyncio.fixture
+async def session():
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
 
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-    yield session
+    Session = async_sessionmaker(bind=engine, expire_on_commit=False)
+    async with Session() as session:
+        yield session
 
-    session.close()
-
-
-# @pytest.fixture
-# def marketplace(session):
-#     obj = Marketplace(name="test_marketplace")
-#     session.add(obj)
-#     session.commit()
-#     return obj
-#
-#
-# @pytest.fixture
-# def asset(session):
-#     obj = Asset(symbol="TON")
-#     session.add(obj)
-#     session.commit()
-#     return obj
-#
-#
-# @pytest.fixture
-# def gift(session):
-#     obj = Gift(name="test_gift")
-#     session.add(obj)
-#     session.commit()
-#     return obj
-#
-#
-# @pytest.fixture
-# def backdrop(session):
-#     obj = Backdrop(name="test_backdrop", rarity_percent=10)
-#     session.add(obj)
-#     session.commit()
-#     return obj
-#
-#
-# @pytest.fixture
-# def symbol(session):
-#     obj = Symbol(name="test_symbol", rarity_percent=8)
-#     session.add(obj)
-#     session.commit()
-#     return obj
-#
-#
-# @pytest.fixture
-# def sale(
-#     session,
-#     marketplace,
-#     gift,
-#     model,
-#     backdrop,
-#     symbol,
-#     asset,
-# ):
-#     sale = Sale(
-#         marketplace_id=marketplace.id,
-#         gift_id=gift.id,
-#         gift_number=1,
-#         model_id=model.id,
-#         backdrop_id=backdrop.id,
-#         symbol_id=symbol.id,
-#         asset_id=asset.id,
-#         price_native=10.0,
-#         price_usd=12.5,
-#     )
-#
-#     session.add(sale)
-#     session.commit()
-#
-#     return sale
+    await engine.dispose()

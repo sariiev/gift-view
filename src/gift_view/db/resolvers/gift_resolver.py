@@ -8,11 +8,11 @@ class GiftResolver:
         self.cache = {}
 
 
-    def resolve(self, name: str) -> Gift:
+    async def resolve(self, name: str) -> Gift:
         if name in self.cache:
             return self.cache[name]
 
-        gift = self.repository.get_by_name(name=name)
+        gift = await self.repository.get_by_name(name=name)
         if gift:
             self.cache[name] = gift
             return gift
@@ -20,7 +20,7 @@ class GiftResolver:
         gift = Gift(name=name)
         self.repository.add(gift=gift)
 
-        self.repository.session.flush()
+        await self.repository.session.flush()
 
         self.cache[name] = gift
         return gift
