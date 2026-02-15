@@ -9,13 +9,15 @@ requires-python = ">= 3.12.10"
 description = "Telegram Gifts Analytics Platform"
 readme = "README.md"
 dependencies = [
-    "sqlalchemy",
-    "psycopg[binary]"
+    "sqlalchemy[asyncio]",
+    "asyncpg"
 ]
 
 [project.optional-dependencies]
 test = [
-    "pytest"
+    "pytest",
+    "pytest-asyncio",
+    "aiosqlite"
 ]
 
 [tool.setuptools]
