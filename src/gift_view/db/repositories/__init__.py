@@ -1,4 +1,5 @@
 from .sale_repository import SaleRepository
+from .asset_price_repository import AssetPriceRepository
 from .asset_repository import AssetRepository
 from .backdrop_repository import BackdropRepository
 from .gift_repository import GiftRepository
