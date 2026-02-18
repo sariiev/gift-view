@@ -10,7 +10,9 @@ description = "Telegram Gifts Analytics Platform"
 readme = "README.md"
 dependencies = [
     "sqlalchemy[asyncio]",
-    "asyncpg"
+    "asyncpg",
+    "curl_cffi",
+    "apscheduler"
 ]
 
 [project.optional-dependencies]
