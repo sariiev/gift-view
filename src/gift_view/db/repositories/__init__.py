@@ -5,5 +5,4 @@ from .backdrop_repository import BackdropRepository
 from .gift_repository import GiftRepository
 from .marketplace_repository import MarketplaceRepository
 from .model_repository import ModelRepository
-from .rarity_tier_repository import RarityTierRepository
 from .symbol_repository import SymbolRepository
