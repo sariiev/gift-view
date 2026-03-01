@@ -1,26 +1,19 @@
-from gift_view.db.models import Gift
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from gift_view.db.repositories import GiftRepository
 
 
 class GiftResolver:
-    def __init__(self, repository: GiftRepository):
-        self.repository = repository
+    def __init__(self):
         self.cache = {}
 
 
-    async def resolve(self, name: str) -> Gift:
+    async def resolve_id(self, session: AsyncSession, name: str) -> int:
         if name in self.cache:
             return self.cache[name]
 
-        gift = await self.repository.get_by_name(name=name)
-        if gift:
-            self.cache[name] = gift
-            return gift
+        repository = GiftRepository(session=session)
+        gift = await repository.get_or_create(name=name)
 
-        gift = Gift(name=name)
-        self.repository.add(gift=gift)
-
-        await self.repository.session.flush()
-
-        self.cache[name] = gift
-        return gift
+        self.cache[name] = gift.id
+        return gift.id

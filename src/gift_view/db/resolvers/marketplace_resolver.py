@@ -1,26 +1,19 @@
-from gift_view.db.models import Marketplace
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from gift_view.db.repositories import MarketplaceRepository
 
 
 class MarketplaceResolver:
-    def __init__(self, repository: MarketplaceRepository):
-        self.repository = repository
+    def __init__(self):
         self.cache = {}
 
 
-    async def resolve(self, name: str) -> Marketplace:
+    async def resolve_id(self, session: AsyncSession, name: str) -> int:
         if name in self.cache:
             return self.cache[name]
 
-        marketplace = await self.repository.get_by_name(name=name)
-        if marketplace:
-            self.cache[name] = marketplace
-            return marketplace
+        repository = MarketplaceRepository(session=session)
+        marketplace = await repository.get_or_create(name=name)
 
-        marketplace = Marketplace(name=name)
-        self.repository.add(marketplace=marketplace)
-
-        await self.repository.session.flush()
-
-        self.cache[name] = marketplace
-        return marketplace
+        self.cache[name] = marketplace.id
+        return marketplace.id
