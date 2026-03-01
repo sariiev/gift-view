@@ -1,6 +1,7 @@
-from typing import Optional, List
+from typing import List
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from gift_view.db.models import Asset
@@ -19,13 +20,12 @@ class AssetRepository:
         return list(res.scalars().all())
 
 
-    async def get_by_symbol(self, symbol: str) -> Optional[Asset]:
+    async def get_or_create(self, symbol: str) -> Asset:
+        stmt = insert(Asset).values(symbol=symbol).on_conflict_do_nothing(index_elements=["symbol"])
+
+        await self.session.execute(stmt)
+
         res = await self.session.execute(
-            select(Asset)
-            .where(Asset.symbol == symbol)
+            select(Asset).where(Asset.symbol == symbol)
         )
-        return res.scalar_one_or_none()
-
-
-    def add(self, asset: Asset):
-        self.session.add(asset)
+        return res.scalar_one()
