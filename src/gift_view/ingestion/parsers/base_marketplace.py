@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from gift_view.db.resolvers import MarketplaceResolver, GiftResolver, ModelResolver, BackdropResolver, SymbolResolver, \
     AssetResolver
 
@@ -24,5 +26,5 @@ class BaseMarketplaceParser(ABC):
 
 
     @abstractmethod
-    async def parse_sales(self, sales: Dict | List):
+    async def parse_sales(self, session: AsyncSession, sales: Dict | List):
         pass
