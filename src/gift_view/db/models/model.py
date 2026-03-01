@@ -17,3 +17,7 @@ class Model(Base):
 
     gift = relationship("Gift", back_populates="models")
     sales = relationship("Sale", back_populates="model")
+
+    __table_args__ = (
+        UniqueConstraint("gift_id", "name", "is_crafted"),
+    )
