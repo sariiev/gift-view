@@ -2,6 +2,8 @@ import re
 from datetime import datetime, timezone
 from typing import Dict, List
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from gift_view.db.models import Sale
 from gift_view.db.resolvers import MarketplaceResolver, GiftResolver, ModelResolver, BackdropResolver, SymbolResolver, \
     AssetResolver
@@ -31,50 +33,63 @@ class TonnelParser(BaseMarketplaceParser):
 
 
 
-    async def parse_sales(self, sales: Dict | List):
+    async def parse_sales(self, session: AsyncSession, sales: Dict | List):
         result = []
 
-        marketplace = await self.marketplace_resolver.resolve(name=self.marketplace_name)
+        marketplace_id = await self.marketplace_resolver.resolve_id(
+            session=session,
+            name=self.marketplace_name
+        )
 
         for item in sales:
-            gift = await self.gift_resolver.resolve(name=item["gift_name"])
+            gift_id = await self.gift_resolver.resolve_id(
+                session=session,
+                name=item["gift_name"]
+            )
 
             model_name, model_rarity, model_is_crafted = self.parse_model_string(raw=item["model"])
-            model = await self.model_resolver.resolve(
-                gift=gift,
+            model_id = await self.model_resolver.resolve_id(
+                session=session,
+                gift_id=gift_id,
                 name=model_name,
                 is_crafted=model_is_crafted,
                 rarity_percent=model_rarity
             )
 
             backdrop_name, backdrop_rarity = self.parse_attribute_string(raw=item["backdrop"])
-            backdrop = await self.backdrop_resolver.resolve(
+            backdrop_id = await self.backdrop_resolver.resolve_id(
+                session=session,
                 name=backdrop_name,
                 rarity_percent=backdrop_rarity
             )
 
             symbol_name, symbol_rarity = self.parse_attribute_string(raw=item["symbol"])
-            symbol = await self.symbol_resolver.resolve(
+            symbol_id = await self.symbol_resolver.resolve_id(
+                session=session,
                 name=symbol_name,
                 rarity_percent=symbol_rarity
             )
 
-            asset = await self.asset_resolver.resolve(symbol=item["asset"])
+            asset_id = await self.asset_resolver.resolve_id(
+                session=session,
+                symbol=item["asset"]
+            )
 
             sale = Sale(
-                marketplace_id=marketplace.id,
-                gift_id=gift.id,
-                gift_number=item["gift_num"],
-                model_id=model.id,
-                backdrop_id=backdrop.id,
-                symbol_id=symbol.id,
-                asset_id=asset.id,
+                marketplace_id=marketplace_id,
+                marketplace_sale_id=item["_id"],
+                gift_id=gift_id,
+                gift_number=int(item["gift_num"]),
+                model_id=model_id,
+                backdrop_id=backdrop_id,
+                symbol_id=symbol_id,
+                asset_id=asset_id,
                 price_native=float(item["price"]),
                 timestamp=datetime.strptime(item["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc)
             )
 
             result.append(sale)
-        return sales
+        return result
 
 
     def parse_attribute_string(self, raw: str):
