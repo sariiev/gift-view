@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Float, DateTime
+from sqlalchemy import ForeignKey, Float, DateTime, UniqueConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gift_view.db.base import Base
@@ -13,6 +13,10 @@ class Sale(Base):
     marketplace_id: Mapped[int] = mapped_column(
         ForeignKey("marketplaces.id"),
         index=True
+    )
+    marketplace_sale_id: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False
     )
     gift_id: Mapped[int] = mapped_column(
         ForeignKey("gifts.id"),
@@ -36,7 +40,7 @@ class Sale(Base):
         index=True
     )
     price_native: Mapped[float] = mapped_column(Float)
-    price_usd: Mapped[float] = mapped_column(Float)
+    price_usd: Mapped[float] = mapped_column(Float, nullable=True)
     timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         index=True
@@ -47,3 +51,7 @@ class Sale(Base):
     model = relationship("Model", back_populates="sales")
     backdrop = relationship("Backdrop", back_populates="sales")
     symbol = relationship("Symbol", back_populates="sales")
+
+    __table_args__ = (
+        UniqueConstraint("marketplace_id", "marketplace_sale_id"),
+    )
