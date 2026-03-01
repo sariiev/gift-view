@@ -4,5 +4,6 @@ from .asset_repository import AssetRepository
 from .backdrop_repository import BackdropRepository
 from .gift_repository import GiftRepository
 from .marketplace_repository import MarketplaceRepository
+from .marketplace_state_repository import MarketplaceStateRepository
 from .model_repository import ModelRepository
 from .symbol_repository import SymbolRepository
