@@ -1,9 +1,9 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import Marketplace, MarketplaceState
+from gift_view.db.models import MarketplaceState
 
 
 class MarketplaceStateRepository:
@@ -11,30 +11,27 @@ class MarketplaceStateRepository:
         self.session = session
 
 
-    async def get_by_marketplace(self, marketplace: Marketplace) -> Optional[MarketplaceState]:
+    async def get_by_marketplace_id(self, marketplace_id: int) -> Optional[MarketplaceState]:
         res = await self.session.execute(
             select(MarketplaceState)
-            .where(MarketplaceState.marketplace_id== marketplace.id)
+            .where(MarketplaceState.marketplace_id== marketplace_id)
         )
         return res.scalar_one_or_none()
 
 
     async def upsert(
             self,
-            marketplace: Marketplace,
+            marketplace_id: int,
             state: Dict
-    ) -> MarketplaceState:
-        existing = await self.get_by_marketplace(marketplace)
+    ):
+        existing = await self.get_by_marketplace_id(marketplace_id)
 
         if existing:
             existing.state = state
             return existing
 
         new_state = MarketplaceState(
-            marketplace_id=Marketplace.id,
+            marketplace_id=marketplace_id,
             state=state
         )
         self.session.add(new_state)
-        await self.session.flush()
-        return new_state
-
