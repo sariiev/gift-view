@@ -1,3 +1,5 @@
+import asyncio
+import time
 from typing import Callable, AsyncContextManager, List, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,12 +17,14 @@ class TonnelRunner(BaseMarketplaceRunner):
             self,
             marketplace_client: TonnelClient,
             marketplace_parser: TonnelParser,
-            session_factory: Callable[[], AsyncContextManager[AsyncSession]]
+            session_factory: Callable[[], AsyncContextManager[AsyncSession]],
+            delay: int = 3
     ):
         super().__init__(
             marketplace_client=marketplace_client,
             marketplace_parser=marketplace_parser,
-            session_factory=session_factory
+            session_factory=session_factory,
+            delay=delay
         )
 
 
@@ -31,6 +35,16 @@ class TonnelRunner(BaseMarketplaceRunner):
 
 
     async def run_once(self):
+        while True:
+            fetch_start = time.monotonic()
+            await self.fetch_once()
+            fetch_end = time.monotonic()
+            passed = fetch_end - fetch_start
+            if passed < self.delay:
+                await asyncio.sleep(self.delay - passed)
+
+
+    async def fetch_once(self):
         async with self.session_factory() as session:
             marketplace_state_repository = MarketplaceStateRepository(session=session)
             marketplace_state = await marketplace_state_repository.get_by_marketplace_id(
@@ -51,11 +65,11 @@ class TonnelRunner(BaseMarketplaceRunner):
 
             if len(raw_sales) < state["limit"]:
                 return
-            state["page"] += 1
             await marketplace_state_repository.upsert(
                 marketplace_id=self.marketplace_id,
-                state=state
+                state={**state, "page": state["page"] + 1}
             )
+
 
     async def process_batch(self, session: AsyncSession, raw_sales: List[Dict]):
         parsed_sales = await self.marketplace_parser.parse_sales(session=session, sales=raw_sales)

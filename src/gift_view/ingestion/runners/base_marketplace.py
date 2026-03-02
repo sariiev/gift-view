@@ -12,11 +12,13 @@ class BaseMarketplaceRunner(ABC):
             self,
             marketplace_client: BaseMarketplaceClient,
             marketplace_parser: BaseMarketplaceParser,
-            session_factory: Callable[[], AsyncContextManager[AsyncSession]]
+            session_factory: Callable[[], AsyncContextManager[AsyncSession]],
+            delay: int
     ):
         self.marketplace_client = marketplace_client
         self.marketplace_parser = marketplace_parser
         self.session_factory = session_factory
+        self.delay = delay
 
 
     @abstractmethod
