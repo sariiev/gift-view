@@ -1,5 +1,6 @@
 import asyncio
 from abc import ABC
+from logging import getLogger
 from typing import Optional, Dict, Any
 
 from curl_cffi import requests
@@ -20,6 +21,7 @@ class BaseClient(ABC):
         self.retry_delay = retry_delay
         self.rate_limit_delay = rate_limit_delay
         self.impersonate = impersonate
+        self.logger = getLogger(self.__class__.__name__)
 
 
     async def _request(
@@ -54,10 +56,13 @@ class BaseClient(ABC):
                 elif status_code == 403:
                     raise RuntimeError(f"403 Forbidden: {url}")
                 elif status_code == 429:
+                    self.logger.warning("%s %s: 429 received, retrying in %s seconds", method, path, self.rate_limit_delay)
                     await asyncio.sleep(self.rate_limit_delay)
                 elif 500 <= status_code < 600:
                     if attempt == self.max_retries:
                         raise RuntimeError(f"Server error: {status_code}")
+                    self.logger.warning("%s %s: %s received, retrying in %s seconds (attempt %s/%s)",
+                                        method, path, status_code, self.retry_delay, attempt, self.max_retries)
                     await asyncio.sleep(self.retry_delay)
                 else:
                     raise RuntimeError(f"Unexpected status ({status_code}): {url}")

@@ -1,5 +1,6 @@
 import asyncio
 import time
+from logging import getLogger
 from typing import Callable, AsyncContextManager, List, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,15 +27,18 @@ class TonnelRunner(BaseMarketplaceRunner):
             session_factory=session_factory,
             delay=delay
         )
+        self.logger = getLogger(self.__class__.__name__)
 
 
     async def init(self):
         async with self.session_factory() as session:
             marketplace_resolver = MarketplaceResolver()
             self.marketplace_id = await marketplace_resolver.resolve_id(session=session, name="Tonnel")
+        self.logger.info("Tonnel runner init")
 
 
     async def run_once(self):
+        self.logger.info("Tonnel run triggered")
         while True:
             fetch_start = time.monotonic()
             has_next = await self.fetch_once()
@@ -59,14 +63,19 @@ class TonnelRunner(BaseMarketplaceRunner):
             else:
                 state = marketplace_state.state
 
+            self.logger.info("Fetching page %s (limit %s)", state["page"], state["limit"])
             raw_sales = await self.marketplace_client.fetch_sales(state=state)
+            self.logger.info("Fetched %s sales", len(raw_sales))
             await self.process_batch(
                 session=session,
                 raw_sales=raw_sales
             )
 
             if len(raw_sales) < state["limit"]:
+                self.logger.info("Page is not full, pausing fetching")
                 return False
+
+            self.logger.info("Advancing to next page %s", state["page"] + 1)
             await marketplace_state_repository.upsert(
                 marketplace_id=self.marketplace_id,
                 state={**state, "page": state["page"] + 1}

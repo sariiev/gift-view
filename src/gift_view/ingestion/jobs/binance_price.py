@@ -2,11 +2,16 @@ import asyncio
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from gift_view.config import setup_logging
 from gift_view.db.session import get_session
 from gift_view.ingestion.clients import BinanceClient
 from gift_view.ingestion.parsers import BinancePriceParser
 from gift_view.ingestion.runners import BinanceRunner
 from gift_view.scheduler import build_trigger
+
+
+setup_logging()
+
 
 class BinancePriceJob:
     def __init__(

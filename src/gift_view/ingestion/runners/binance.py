@@ -1,6 +1,7 @@
 import asyncio
 import time
 from datetime import datetime, timezone, timedelta
+from logging import getLogger
 from typing import Callable, AsyncContextManager
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,9 +26,11 @@ class BinanceRunner:
         self.interval = interval
         self.interval_str = self.to_interval_str(interval=self.interval)
         self.delay = delay
+        self.logger = getLogger(self.__class__.__name__)
 
 
     async def run_once(self):
+        self.logger.info("Binance run triggered")
         async with self.session_factory() as session:
             asset_repository = AssetRepository(session)
             asset_price_repository = AssetPriceRepository(session)
@@ -44,11 +47,13 @@ class BinanceRunner:
                 now = datetime.now(tz=timezone.utc)
                 while start < now:
                     request_start = time.monotonic()
+                    self.logger.info("Fetching %sUSDT klines (start_time=%s)", asset.symbol, start)
                     klines = await self.client.get_klines(
                         symbol=f"{asset.symbol}USDT",
                         interval=self.interval_str,
                         start_time=int(start.timestamp() * 1000)
                     )
+                    self.logger.info("Fetched %s %sUSDT klines", len(klines), asset.symbol)
 
 
                     prices = self.parser.parse_klines(

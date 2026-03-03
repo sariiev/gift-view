@@ -2,7 +2,7 @@ import asyncio
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from gift_view.config import load_tonnel_config
+from gift_view.config import load_tonnel_config, setup_logging
 from gift_view.db.resolvers import MarketplaceResolver, GiftResolver, ModelResolver, BackdropResolver, SymbolResolver, \
     AssetResolver
 from gift_view.db.session import get_session
@@ -10,6 +10,9 @@ from gift_view.ingestion.clients import TonnelClient
 from gift_view.ingestion.parsers import TonnelParser
 from gift_view.ingestion.runners import TonnelRunner
 from gift_view.scheduler import build_trigger
+
+
+setup_logging()
 
 
 class TonnelSalesJob:
