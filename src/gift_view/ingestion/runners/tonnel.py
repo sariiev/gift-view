@@ -37,14 +37,16 @@ class TonnelRunner(BaseMarketplaceRunner):
     async def run_once(self):
         while True:
             fetch_start = time.monotonic()
-            await self.fetch_once()
+            has_next = await self.fetch_once()
+            if not has_next:
+                break
             fetch_end = time.monotonic()
             passed = fetch_end - fetch_start
             if passed < self.delay:
                 await asyncio.sleep(self.delay - passed)
 
 
-    async def fetch_once(self):
+    async def fetch_once(self) -> bool:
         async with self.session_factory() as session:
             marketplace_state_repository = MarketplaceStateRepository(session=session)
             marketplace_state = await marketplace_state_repository.get_by_marketplace_id(
@@ -64,11 +66,12 @@ class TonnelRunner(BaseMarketplaceRunner):
             )
 
             if len(raw_sales) < state["limit"]:
-                return
+                return False
             await marketplace_state_repository.upsert(
                 marketplace_id=self.marketplace_id,
                 state={**state, "page": state["page"] + 1}
             )
+            return True
 
 
     async def process_batch(self, session: AsyncSession, raw_sales: List[Dict]):
