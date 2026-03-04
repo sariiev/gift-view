@@ -37,7 +37,7 @@ class BinanceRunner:
 
             assets = await asset_repository.get_all()
             for asset in assets:
-                latest_timestamp = await asset_price_repository.get_latest_timestamp(asset)
+                latest_timestamp = await asset_price_repository.get_latest_timestamp(asset.id)
 
                 if latest_timestamp is None:
                     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
