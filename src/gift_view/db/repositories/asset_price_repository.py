@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import Asset, AssetPrice
+from gift_view.db.models import AssetPrice
 
 
 class AssetPriceRepository:
@@ -12,18 +12,32 @@ class AssetPriceRepository:
         self.session = session
 
 
-    async def get_latest_timestamp(self, asset: Asset) -> Optional[datetime]:
+    async def get_at_timestamps(self, keys: List[Tuple[int, datetime]]) -> List[AssetPrice]:
+        if not keys:
+            return []
+
+        res = await self.session.execute(
+            select(AssetPrice)
+            .where(
+                tuple_(AssetPrice.asset_id, AssetPrice.timestamp)
+                .in_(keys)
+            )
+        )
+        return list(res.scalars().all())
+
+
+    async def get_latest_timestamp(self, asset_id: int) -> Optional[datetime]:
         res = await self.session.execute(
             select(func.max(AssetPrice.timestamp))
-            .where(AssetPrice.asset_id == asset.id)
+            .where(AssetPrice.asset_id == asset_id)
         )
         return res.scalar_one_or_none()
 
 
-    async def get_latest_before(self, asset: Asset, timestamp: datetime) -> Optional[AssetPrice]:
+    async def get_latest_before(self, asset_id: int, timestamp: datetime) -> Optional[AssetPrice]:
         res = await self.session.execute(
             select(AssetPrice)
-            .where(AssetPrice.asset_id == asset.id)
+            .where(AssetPrice.asset_id == asset_id)
             .where(AssetPrice.timestamp <= timestamp)
             .order_by(AssetPrice.timestamp.desc())
             .limit(1)
