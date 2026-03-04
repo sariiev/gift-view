@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Float, DateTime, UniqueConstraint, String
+from sqlalchemy import ForeignKey, Float, DateTime, UniqueConstraint, String, Index, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gift_view.db.base import Base
@@ -54,4 +54,9 @@ class Sale(Base):
 
     __table_args__ = (
         UniqueConstraint("marketplace_id", "marketplace_sale_id"),
+        Index(
+            "idx_sales_price_usd_null_timestamp",
+            "timestamp",
+            postgresql_where=text("price_usd IS NULL")
+        )
     )
