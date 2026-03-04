@@ -1,8 +1,8 @@
 from typing import List
 
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
 
 from gift_view.db.models import Sale
 
@@ -10,6 +10,15 @@ from gift_view.db.models import Sale
 class SaleRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
+
+
+    async def get_without_usd_price(self, limit: int) -> List[Sale]:
+        res = await self.session.execute(
+                select(Sale)
+                .where(Sale.price_usd.is_(None))
+                .limit(limit)
+            )
+        return list(res.scalars().all())
 
 
     async def add_all(self, sales: List[Sale]):
