@@ -22,5 +22,5 @@ class BaseMarketplaceRunner(ABC):
 
 
     @abstractmethod
-    async def run_once(self):
+    async def fetch_all(self):
         pass

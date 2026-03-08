@@ -56,7 +56,7 @@ async def test_runner_inserts_sales_and_updates_state(session_factory):
     )
 
     await runner.init()
-    await runner.run_once()
+    await runner.fetch_all()
 
     async with session_factory() as sess:
         res = await sess.execute(select(Sale))

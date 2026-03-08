@@ -37,7 +37,7 @@ class TonnelRunner(BaseMarketplaceRunner):
         self.logger.info("Tonnel runner init")
 
 
-    async def run_once(self):
+    async def fetch_all(self):
         self.logger.info("Tonnel run triggered")
         while True:
             fetch_start = time.monotonic()

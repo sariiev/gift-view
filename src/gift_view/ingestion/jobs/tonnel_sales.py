@@ -28,7 +28,7 @@ class TonnelSalesJob:
 
     async def main(self):
         self.scheduler.add_job(
-            self.runner.run_once,
+            self.runner.fetch_all,
             trigger=build_trigger(interval=self.interval),
             id="tonnel_runner",
             max_instances=1,
@@ -36,7 +36,7 @@ class TonnelSalesJob:
         )
 
         await self.runner.init()
-        await self.runner.run_once()
+        await self.runner.fetch_all()
 
         self.scheduler.start()
 
