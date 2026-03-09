@@ -5,8 +5,8 @@ from typing import Callable, AsyncContextManager, List, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.repositories import SaleRepository
-from gift_view.db.repositories import MarketplaceStateRepository
+from gift_view.db.repositories.domain import SaleRepository
+from gift_view.db.repositories.domain import MarketplaceStateRepository
 from gift_view.db.resolvers import MarketplaceResolver
 from gift_view.ingestion.clients import TonnelClient
 from gift_view.ingestion.parsers import TonnelParser

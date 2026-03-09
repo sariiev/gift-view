@@ -4,7 +4,7 @@ from typing import Optional, List, Tuple
 from sqlalchemy import select, func, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import AssetPrice
+from gift_view.db.models.domain import AssetPrice
 
 
 class AssetPriceRepository:

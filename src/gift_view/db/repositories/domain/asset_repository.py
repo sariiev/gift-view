@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import Asset
+from gift_view.db.models.domain import Asset
 
 
 class AssetRepository:

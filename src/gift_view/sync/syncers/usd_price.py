@@ -4,7 +4,7 @@ from typing import Callable, AsyncContextManager
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.repositories import SaleRepository, AssetPriceRepository
+from gift_view.db.repositories.domain import SaleRepository, AssetPriceRepository
 
 
 class UsdPriceSyncer:

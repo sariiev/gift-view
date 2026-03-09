@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.repositories import SymbolRepository
+from gift_view.db.repositories.domain import SymbolRepository
 
 
 class SymbolResolver:

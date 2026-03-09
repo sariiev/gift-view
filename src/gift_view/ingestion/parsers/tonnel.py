@@ -4,7 +4,7 @@ from typing import Dict, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import Sale
+from gift_view.db.models.domain import Sale
 from gift_view.db.resolvers import MarketplaceResolver, GiftResolver, ModelResolver, BackdropResolver, SymbolResolver, \
     AssetResolver
 from gift_view.ingestion.parsers import BaseMarketplaceParser

@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import Gift
+from gift_view.db.models.domain import Gift
 
 
 class GiftRepository:

@@ -2,21 +2,17 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import Backdrop
+from gift_view.db.models.domain import Symbol
 
 
-class BackdropRepository:
+class SymbolRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
 
-    async def get_or_create(
-            self,
-            name: str,
-            rarity_percent: float
-    ) -> Backdrop:
+    async def get_or_create(self, name: str, rarity_percent: float) -> Symbol:
         stmt = (
-            insert(Backdrop)
+            insert(Symbol)
             .values(name=name, rarity_percent=rarity_percent)
             .on_conflict_do_nothing(index_elements=["name", "rarity_percent"])
         )
@@ -24,8 +20,8 @@ class BackdropRepository:
         await self.session.execute(stmt)
 
         res = await self.session.execute(
-            select(Backdrop)
-            .where(Backdrop.name == name)
-            .where(Backdrop.rarity_percent == rarity_percent)
+            select(Symbol)
+            .where(Symbol.name == name)
+            .where(Symbol.rarity_percent == rarity_percent)
         )
         return res.scalar_one()

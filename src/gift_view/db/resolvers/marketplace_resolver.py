@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.repositories import MarketplaceRepository
+from gift_view.db.repositories.domain import MarketplaceRepository
 
 
 class MarketplaceResolver:

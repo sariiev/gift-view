@@ -6,7 +6,7 @@ from typing import Callable, AsyncContextManager
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.repositories import AssetRepository, AssetPriceRepository
+from gift_view.db.repositories.domain import AssetRepository, AssetPriceRepository
 from gift_view.ingestion.clients import BinanceClient
 from gift_view.ingestion.parsers import BinancePriceParser
 

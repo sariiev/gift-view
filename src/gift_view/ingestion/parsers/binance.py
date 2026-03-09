@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Dict, List
 
-from gift_view.db.models import AssetPrice
+from gift_view.db.models.domain import AssetPrice
 
 
 class BinancePriceParser:

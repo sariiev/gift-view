@@ -3,7 +3,7 @@ from typing import Optional, Dict
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gift_view.db.models import MarketplaceState
+from gift_view.db.models.domain import MarketplaceState
 
 
 class MarketplaceStateRepository:

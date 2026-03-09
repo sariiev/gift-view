@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import select
 
-from gift_view.db.models import Sale
+from gift_view.db.models.domain import Sale
 from gift_view.db.resolvers import MarketplaceResolver, ModelResolver, GiftResolver, BackdropResolver, SymbolResolver, \
     AssetResolver
 from gift_view.ingestion.parsers import TonnelParser
