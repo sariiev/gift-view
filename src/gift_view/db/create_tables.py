@@ -3,7 +3,8 @@ import asyncio
 from gift_view.db.base import Base
 from gift_view.db.engine import engine
 
-import gift_view.db.models
+import gift_view.db.models.domain
+import gift_view.db.models.aggregation
 
 
 async def create_tables():
