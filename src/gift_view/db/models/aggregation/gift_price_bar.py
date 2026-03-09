@@ -40,7 +40,7 @@ class GiftPriceBar(Base):
         Float,
         nullable=True
     )
-    avg_price_usd: Mapped[float] = mapped_column(
+    median_price_usd: Mapped[float] = mapped_column(
         Float,
         nullable=True
     )

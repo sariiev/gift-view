@@ -6,7 +6,7 @@ INSERT INTO gift_price_bars (
     volume_usd,
     min_price_usd,
     max_price_usd,
-    avg_price_usd
+    median_price_usd
 )
 SELECT
     s.gift_id,
@@ -16,7 +16,7 @@ SELECT
     SUM(s.price_usd) as volume_usd,
     MIN(s.price_usd) as min_price_usd,
     MAX(s.price_usd) as max_price_usd,
-    AVG(s.price_usd) as avg_price_usd
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY s.price_usd) as median_price_usd
 FROM (
     SELECT
         gift_id,
@@ -46,4 +46,4 @@ DO UPDATE SET
     volume_usd = EXCLUDED.volume_usd,
     min_price_usd = EXCLUDED.min_price_usd,
     max_price_usd = EXCLUDED.max_price_usd,
-    avg_price_usd = EXCLUDED.avg_price_usd;
+    median_price_usd = EXCLUDED.median_price_usd;
