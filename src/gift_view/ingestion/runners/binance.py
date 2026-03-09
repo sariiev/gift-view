@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from gift_view.db.repositories.domain import AssetRepository, AssetPriceRepository
 from gift_view.ingestion.clients import BinanceClient
 from gift_view.ingestion.parsers import BinancePriceParser
+from gift_view.utils import to_interval_seconds
 
 
 class BinanceRunner:
@@ -17,14 +18,14 @@ class BinanceRunner:
             client: BinanceClient,
             parser: BinancePriceParser,
             session_factory: Callable[[], AsyncContextManager[AsyncSession]],
-            interval: int = 3600,
+            interval: str = "1h",
             delay: int = 1
     ):
         self.client = client
         self.parser = parser
         self.session_factory = session_factory
         self.interval = interval
-        self.interval_str = self.to_interval_str(interval=self.interval)
+        self.interval_seconds = to_interval_seconds(interval=interval)
         self.delay = delay
         self.logger = getLogger(self.__class__.__name__)
 
@@ -42,7 +43,7 @@ class BinanceRunner:
                 if latest_timestamp is None:
                     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
                 else:
-                    start = latest_timestamp + timedelta(seconds=self.interval)
+                    start = latest_timestamp + timedelta(seconds=self.interval_seconds)
 
                 now = datetime.now(tz=timezone.utc)
                 while start < now:
@@ -50,7 +51,7 @@ class BinanceRunner:
                     self.logger.info("Fetching %sUSDT klines (start_time=%s)", asset.symbol, start)
                     klines = await self.client.get_klines(
                         symbol=f"{asset.symbol}USDT",
-                        interval=self.interval_str,
+                        interval=self.interval,
                         start_time=int(start.timestamp() * 1000)
                     )
                     self.logger.info("Fetched %s %sUSDT klines", len(klines), asset.symbol)
@@ -66,34 +67,9 @@ class BinanceRunner:
                     if not prices:
                         break
                     last_timestamp = prices[-1].timestamp
-                    start = last_timestamp + timedelta(seconds=self.interval)
+                    start = last_timestamp + timedelta(seconds=self.interval_seconds)
 
                     request_end = time.monotonic()
                     passed = request_end - request_start
                     if passed < self.delay:
                         await asyncio.sleep(self.delay - passed)
-
-
-    INTERVAL_MAP = {
-        1: "1s",
-        60: "1m",
-        60 * 3: "3m",
-        60 * 5: "5m",
-        60 * 15: "15m",
-        60 * 30: "30m",
-        60 * 60: "1h",
-        60 * 60 * 2: "2h",
-        60 * 60 * 4: "4h",
-        60 * 60 * 6: "6h",
-        60 * 60 * 8: "8h",
-        60 * 60 * 12: "12h",
-        60 * 60 * 24: "1d",
-        60 * 60 * 24 * 3: "3d",
-        60 * 60 * 24 * 7: "1w",
-    }
-
-    def to_interval_str(self, interval: int) -> str:
-        try:
-            return self.INTERVAL_MAP[interval]
-        except KeyError:
-            raise ValueError(f"Unsupported interval: {interval}")

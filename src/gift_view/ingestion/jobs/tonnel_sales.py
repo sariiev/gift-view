@@ -10,7 +10,7 @@ from gift_view.ingestion.clients import TonnelClient
 from gift_view.ingestion.parsers import TonnelParser
 from gift_view.ingestion.runners import TonnelRunner
 from gift_view.scheduler import build_trigger
-
+from gift_view.utils import to_interval_seconds
 
 setup_logging()
 
@@ -19,17 +19,18 @@ class TonnelSalesJob:
     def __init__(
             self,
             runner: TonnelRunner,
-            interval: int
+            interval: str
     ):
         self.runner = runner
         self.interval = interval
+        self.interval_seconds = to_interval_seconds(interval=interval)
         self.scheduler = AsyncIOScheduler(timezone="UTC")
 
 
     async def main(self):
         self.scheduler.add_job(
             self.runner.fetch_all,
-            trigger=build_trigger(interval=self.interval),
+            trigger=build_trigger(interval=self.interval_seconds),
             id="tonnel_runner",
             max_instances=1,
             coalesce=True
@@ -64,6 +65,6 @@ if __name__ == '__main__':
     )
     job = TonnelSalesJob(
         runner=runner,
-        interval=60
+        interval="1m"
     )
     asyncio.run(job.main())
