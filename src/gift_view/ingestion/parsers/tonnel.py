@@ -44,7 +44,8 @@ class TonnelParser(BaseMarketplaceParser):
         for item in sales:
             gift_id = await self.gift_resolver.resolve_id(
                 session=session,
-                name=item["gift_name"]
+                name=item["gift_name"],
+                create=True
             )
 
             model_name, model_rarity, model_is_crafted = self.parse_model_string(raw=item["model"])
