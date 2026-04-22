@@ -38,7 +38,8 @@ class TonnelParser(BaseMarketplaceParser):
 
         marketplace_id = await self.marketplace_resolver.resolve_id(
             session=session,
-            name=self.marketplace_name
+            name=self.marketplace_name,
+            create=True
         )
 
         for item in sales:
@@ -54,26 +55,30 @@ class TonnelParser(BaseMarketplaceParser):
                 gift_id=gift_id,
                 name=model_name,
                 is_crafted=model_is_crafted,
-                rarity_percent=model_rarity
+                rarity_percent=model_rarity,
+                create=True
             )
 
             backdrop_name, backdrop_rarity = self.parse_attribute_string(raw=item["backdrop"])
             backdrop_id = await self.backdrop_resolver.resolve_id(
                 session=session,
                 name=backdrop_name,
-                rarity_percent=backdrop_rarity
+                rarity_percent=backdrop_rarity,
+                create=True
             )
 
             symbol_name, symbol_rarity = self.parse_attribute_string(raw=item["symbol"])
             symbol_id = await self.symbol_resolver.resolve_id(
                 session=session,
                 name=symbol_name,
-                rarity_percent=symbol_rarity
+                rarity_percent=symbol_rarity,
+                create=True
             )
 
             asset_id = await self.asset_resolver.resolve_id(
                 session=session,
-                symbol=item["asset"]
+                symbol=item["asset"],
+                create=True
             )
 
             sale = Sale(

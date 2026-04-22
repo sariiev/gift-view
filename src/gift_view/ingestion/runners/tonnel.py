@@ -33,7 +33,7 @@ class TonnelRunner(BaseMarketplaceRunner):
     async def init(self):
         async with self.session_factory() as session:
             marketplace_resolver = MarketplaceResolver()
-            self.marketplace_id = await marketplace_resolver.resolve_id(session=session, name="Tonnel")
+            self.marketplace_id = await marketplace_resolver.resolve_id(session=session, name="Tonnel", create=True)
         self.logger.info("Tonnel runner init")
 
 
