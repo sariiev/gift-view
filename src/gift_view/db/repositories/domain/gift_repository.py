@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +17,13 @@ class GiftRepository:
             .where(Gift.name == name)
         )
         return res.scalar_one_or_none()
+
+
+    async def get_all(self) -> List[Gift]:
+        res = await self.session.execute(
+            select(Gift)
+        )
+        return list(res.scalars().all())
 
 
     def add(self, gift: Gift):
