@@ -1,6 +1,6 @@
 from datetime import datetime
 from importlib.resources import files
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,6 +27,35 @@ class GiftModelPriceBarRepository:
         )
 
         return res.scalar_one_or_none()
+
+
+    async def get_bars(
+            self,
+            gift_id: int,
+            model_id: int,
+            interval: str,
+            limit: int,
+            before: datetime | None = None
+    ) -> List[GiftModelPriceBar]:
+        query = (
+            select(GiftModelPriceBar)
+            .where(GiftModelPriceBar.gift_id == gift_id)
+            .where(GiftModelPriceBar.model_id == model_id)
+            .where(GiftModelPriceBar.interval == interval)
+        )
+
+        if before:
+            query = query.where(GiftModelPriceBar.timestamp < before)
+
+        query = (
+            query
+            .order_by(GiftModelPriceBar.timestamp.desc())
+            .limit(limit)
+        )
+
+        res = await self.session.execute(query)
+
+        return list(res.scalars().all())
 
 
     async def aggregate(self, interval: str, start: datetime):
