@@ -11,22 +11,29 @@ class ModelRepository:
         self.session = session
 
 
-    async def get_by_gift_id_and_params(
+    async def get_by_gift_id_and_name(
             self,
             gift_id: int,
             name: str,
-            is_crafted: bool,
-            rarity_percent: float
     ) -> Optional[Model]:
         res = await self.session.execute(
             select(Model)
             .where(Model.gift_id == gift_id)
             .where(Model.name == name)
-            .where(Model.is_crafted == is_crafted)
-            .where(Model.rarity_percent == rarity_percent)
         )
 
         return res.scalar_one_or_none()
+
+    async def get_by_gift_id(
+            self,
+            gift_id: int
+    ):
+        res = await self.session.execute(
+            select(Model)
+            .where(Model.gift_id == gift_id)
+        )
+
+        return list(res.scalars().all())
 
 
     def add(self, model: Model):
