@@ -11,13 +11,13 @@ class ModelResolver:
         self.cache = {}
 
 
-    async def resolve_id(self, session: AsyncSession, gift_id: int, name: str, is_crafted: bool, rarity_percent: float, create: bool) -> Optional[int]:
+    async def resolve_id(self, session: AsyncSession, gift_id: int, name: str, create: bool, is_crafted: Optional[bool] = None, rarity_percent: Optional[float] = None) -> Optional[int]:
         key = (gift_id, name, is_crafted)
         if key in self.cache:
             return self.cache[key]
 
         repository = ModelRepository(session=session)
-        model = await repository.get_by_gift_id_and_params(gift_id=gift_id, name=name, is_crafted=is_crafted, rarity_percent=rarity_percent)
+        model = await repository.get_by_gift_id_and_name(gift_id=gift_id, name=name)
 
         if model:
             self.cache[key] = model.id
