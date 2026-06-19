@@ -19,5 +19,5 @@ class Model(Base):
     sales = relationship("Sale", back_populates="model")
 
     __table_args__ = (
-        UniqueConstraint("gift_id", "name", "is_crafted"),
+        UniqueConstraint("gift_id", "name"),
     )

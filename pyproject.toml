@@ -12,7 +12,8 @@ dependencies = [
     "sqlalchemy[asyncio]",
     "asyncpg",
     "curl_cffi",
-    "apscheduler"
+    "apscheduler",
+    "fastapi[standard]"
 ]
 
 [project.optional-dependencies]

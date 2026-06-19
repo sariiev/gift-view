@@ -1,5 +1,6 @@
+from typing import Optional
+
 from sqlalchemy import select
-from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from gift_view.db.models.domain import Model
@@ -10,26 +11,30 @@ class ModelRepository:
         self.session = session
 
 
-    async def get_or_create(
+    async def get_by_gift_id_and_name(
             self,
             gift_id: int,
             name: str,
-            is_crafted: bool,
-            rarity_percent: float
-    ) -> Model:
-        stmt = (
-            insert(Model)
-            .values(gift_id=gift_id, name=name, is_crafted=is_crafted, rarity_percent=rarity_percent)
-            .on_conflict_do_nothing(index_elements=["gift_id", "name", "is_crafted"])
-        )
-
-        await self.session.execute(stmt)
-
+    ) -> Optional[Model]:
         res = await self.session.execute(
             select(Model)
             .where(Model.gift_id == gift_id)
             .where(Model.name == name)
-            .where(Model.is_crafted == is_crafted)
-            .where(Model.rarity_percent == rarity_percent)
         )
-        return res.scalar_one()
+
+        return res.scalar_one_or_none()
+
+    async def get_by_gift_id(
+            self,
+            gift_id: int
+    ):
+        res = await self.session.execute(
+            select(Model)
+            .where(Model.gift_id == gift_id)
+        )
+
+        return list(res.scalars().all())
+
+
+    def add(self, model: Model):
+        self.session.add(model)
