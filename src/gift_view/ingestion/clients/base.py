@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Optional, Dict, Any
 
 from curl_cffi import requests
-from curl_cffi.requests.exceptions import Timeout, DNSError, ConnectionError as CurlConnectionError
+from curl_cffi.requests.exceptions import Timeout, DNSError, ConnectionError as CurlConnectionError, CurlError
 
 
 class BaseClient(ABC):
@@ -70,7 +70,7 @@ class BaseClient(ABC):
                     await asyncio.sleep(self.retry_delay)
                 else:
                     raise RuntimeError(f"Unexpected status ({status_code}): {url}")
-            except (Timeout, DNSError, CurlConnectionError):
+            except (Timeout, DNSError, CurlConnectionError, CurlError):
                 if attempt == self.max_retries:
                     raise
                 await asyncio.sleep(self.retry_delay)
