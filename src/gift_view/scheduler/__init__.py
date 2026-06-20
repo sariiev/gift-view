@@ -1,1 +1,0 @@
-from .trigger_factory import build_trigger
