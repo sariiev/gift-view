@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Optional, Dict, Any
 
 from curl_cffi import requests
-from curl_cffi.requests.exceptions import Timeout, DNSError, ConnectionError as CurlConnectionError
+from curl_cffi.requests.exceptions import Timeout, DNSError, ConnectionError as CurlConnectionError, CurlError
 
 
 class BaseClient(ABC):
@@ -13,7 +13,7 @@ class BaseClient(ABC):
             base_url: str,
             max_retries: int = 5,
             retry_delay: int = 5,
-            rate_limit_delay: int = 900,
+            rate_limit_delay: int = 60,
             impersonate: str = "chrome136"
     ):
         self.base_url = base_url.rstrip("/")
@@ -54,7 +54,11 @@ class BaseClient(ABC):
                 if status_code == 200:
                     return response.json()
                 elif status_code == 403:
-                    raise RuntimeError(f"403 Forbidden: {url}")
+                    if attempt == self.max_retries:
+                        raise RuntimeError(f"403 Forbidden: {url}")
+                    self.logger.warning("%s %s: 403 received, retrying in %s seconds (attempt %s/%s)",
+                                        method, path, self.rate_limit_delay, attempt, self.max_retries)
+                    await asyncio.sleep(self.rate_limit_delay)
                 elif status_code == 429:
                     self.logger.warning("%s %s: 429 received, retrying in %s seconds", method, path, self.rate_limit_delay)
                     await asyncio.sleep(self.rate_limit_delay)
@@ -66,7 +70,7 @@ class BaseClient(ABC):
                     await asyncio.sleep(self.retry_delay)
                 else:
                     raise RuntimeError(f"Unexpected status ({status_code}): {url}")
-            except (Timeout, DNSError, CurlConnectionError):
+            except (Timeout, DNSError, CurlConnectionError, CurlError):
                 if attempt == self.max_retries:
                     raise
                 await asyncio.sleep(self.retry_delay)

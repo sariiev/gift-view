@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from gift_view.config import TonnelConfig
-from gift_view.ingestion.clients import BaseMarketplaceClient, BaseClient
+from gift_view.ingestion.clients import BaseMarketplaceClient
 
 
 class TonnelClient(BaseMarketplaceClient):
@@ -9,7 +9,7 @@ class TonnelClient(BaseMarketplaceClient):
                  config: TonnelConfig,
                  max_retries: int = 5,
                  retry_delay: int = 5,
-                 rate_limit_delay: int = 900,
+                 rate_limit_delay: int = 60,
                  impersonate: str = "chrome136",
     ):
         super().__init__(

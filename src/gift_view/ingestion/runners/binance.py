@@ -12,6 +12,8 @@ from gift_view.ingestion.parsers import BinancePriceParser
 from gift_view.utils import to_interval_seconds
 
 
+BINANCE_ASSETS = {"TON"}
+
 class BinanceRunner:
     def __init__(
             self,
@@ -37,6 +39,7 @@ class BinanceRunner:
             asset_price_repository = AssetPriceRepository(session)
 
             assets = await asset_repository.get_all()
+            assets = [a for a in assets if a.symbol in BINANCE_ASSETS]
             for asset in assets:
                 latest_timestamp = await asset_price_repository.get_latest_timestamp(asset.id)
 

@@ -19,7 +19,7 @@ class TonnelRunner(BaseMarketplaceRunner):
             marketplace_client: TonnelClient,
             marketplace_parser: TonnelParser,
             session_factory: Callable[[], AsyncContextManager[AsyncSession]],
-            delay: int = 3
+            delay: int = 10
     ):
         super().__init__(
             marketplace_client=marketplace_client,
