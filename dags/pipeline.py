@@ -124,7 +124,8 @@ with DAG(
     default_args=default_args,
     start_date=datetime(2025, 1, 1),
     schedule="*/5 * * * *",
-    catchup=False
+    catchup=False,
+    max_active_runs=1
 ) as ingest_dag:
     PythonOperator(
         task_id="ingest_tonnel",
@@ -136,7 +137,8 @@ with DAG(
     default_args=default_args,
     start_date=datetime(2025, 1, 1),
     schedule="0 * * * *",
-    catchup=False
+    catchup=False,
+    max_active_runs=1
 ) as dag:
     t1_fetch_tokens_prices = PythonOperator(
         task_id="fetch_tokens_prices",
