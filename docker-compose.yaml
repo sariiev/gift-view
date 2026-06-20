@@ -12,6 +12,26 @@ services:
     ports:
       - "5433:5432"
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: api
+    depends_on:
+      - local-postgres
+    environment:
+      DB_USER: gifts
+      DB_PASSWORD: gifts
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gift_view
+    volumes:
+      - ./src:/app/src
+      - ./frontend:/app/frontend
+    ports:
+        - "8000:8000"
+    command: uvicorn gift_view.api.app:app --host 0.0.0.0 --port 8000
+
   airflow-postgres:
     image: postgres:17
     container_name: airflow-postgres
