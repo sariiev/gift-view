@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Gift View</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h2>Gift View</h2>
+
+<div>
+    <label>Gift:</label>
+    <select id="gift"></select>
+
+    <label>Interval:</label>
+    <select id="interval">
+        <option value="1h">1h</option>
+        <option value="4h">4h</option>
+        <option value="1d">1d</option>
+        <option value="1w">1w</option>
+    </select>
+
+    <label>Model:</label>
+
+    <select id="model">
+        <option value="">All models</option>
+    </select>
+</div>
+
+<br>
+
+<canvas id="chart" width="600" height="250"></canvas>
+
+<script src="/static/app.js"></script>
+
+</body>
+</html>

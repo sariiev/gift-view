@@ -1,0 +1,74 @@
+services:
+  local-postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: gift_view
+      POSTGRES_USER: gifts
+      POSTGRES_PASSWORD: gifts
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: api
+    depends_on:
+      - local-postgres
+    environment:
+      DB_USER: gifts
+      DB_PASSWORD: gifts
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gift_view
+    volumes:
+      - ./src:/app/src
+      - ./frontend:/app/frontend
+    ports:
+        - "8000:8000"
+    command: uvicorn gift_view.api.app:app --host 0.0.0.0 --port 8000
+
+  airflow-postgres:
+    image: postgres:17
+    container_name: airflow-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+    volumes:
+      - ./data/airflow-postgres:/var/lib/postgresql/data
+
+  airflow:
+    build: .
+    container_name: airflow
+    restart: always
+    depends_on:
+      - airflow-postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      PYTHONPATH: /opt/airflow/src
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+
+      DB_USER: gifts
+      DB_PASSWORD: gifts
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: gift_view
+      TONNEL_AUTH_DATA: ${TONNEL_AUTH_DATA}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "airflow db migrate && airflow standalone"
